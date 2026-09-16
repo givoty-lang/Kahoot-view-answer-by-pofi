@@ -1,4 +1,3 @@
-
 (()=>{
     if(document.getElementById("hajoXaMenu"))return;
 
@@ -320,4 +319,3 @@
     log("HajoXa UI loaded");
     log("Ready to fetch GitHub script");
 })();
-
