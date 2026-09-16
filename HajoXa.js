@@ -1,4 +1,4 @@
-
+id="jv6m2d"
 (()=>{
     if(document.getElementById("hajoXaMenu"))return;
 
@@ -9,7 +9,7 @@
             position:fixed;
             top:120px;
             left:120px;
-            width:300px;
+            width:340px;
             background:#050505;
             border:1px solid #1c1c1c;
             border-radius:5px;
@@ -19,7 +19,6 @@
             overflow:hidden;
             user-select:none;
             box-shadow:0 10px 35px #000b;
-            transition:opacity .15s,transform .15s;
         }
 
         #hajoXaHeader{
@@ -36,12 +35,11 @@
             flex:1;
             font-weight:600;
             color:#ddd;
-            letter-spacing:.2px;
         }
 
         #hajoXaStatus{
             margin-right:7px;
-            color:#666;
+            color:#777;
             font-size:10px;
         }
 
@@ -95,44 +93,23 @@
         }
 
         .hajoXaValue{
-            color:#666;
+            color:#777;
             font-size:11px;
-            max-width:150px;
+            max-width:190px;
             overflow:hidden;
             text-overflow:ellipsis;
             white-space:nowrap;
         }
 
-        .hajoXaToggle{
-            width:34px;
-            height:18px;
-            position:relative;
-            background:#111;
-            border:1px solid #222;
-            border-radius:10px;
-            cursor:pointer;
-            transition:.15s;
-        }
-
-        .hajoXaToggle span{
-            position:absolute;
-            top:3px;
-            left:3px;
-            width:10px;
-            height:10px;
-            border-radius:50%;
-            background:#555;
-            transition:.15s;
-        }
-
-        .hajoXaToggle.on{
-            background:#181818;
-            border-color:#333;
-        }
-
-        .hajoXaToggle.on span{
-            left:19px;
-            background:#fff;
+        #hajoXaLog{
+            height:160px;
+            padding:8px;
+            overflow:auto;
+            background:#030303;
+            color:#777;
+            font:10px Consolas,monospace;
+            white-space:pre-wrap;
+            user-select:text;
         }
 
         .hajoXaButton{
@@ -145,7 +122,6 @@
             border:1px solid #1b1b1b;
             border-radius:3px;
             cursor:pointer;
-            transition:.12s;
         }
 
         .hajoXaButton:hover{
@@ -165,11 +141,6 @@
         .hajoXaDot.active{
             background:#fff;
             box-shadow:0 0 7px #fff6;
-        }
-
-        .hajoXaAnswer{
-            color:#fff;
-            font-weight:600;
         }
 
         .hajoXaFooter{
@@ -199,34 +170,31 @@
         <div id="hajoXaBody">
             <div class="hajoXaSection">
                 <div class="hajoXaRow">
-                    <div class="hajoXaLabel">Auto Answer</div>
-                    <div class="hajoXaToggle on" id="hajoXaAuto"><span></span></div>
+                    <div class="hajoXaDot active" id="hajoXaDot"></div>
+                    <div class="hajoXaLabel">GitHub Fetch</div>
+                    <div class="hajoXaValue" id="hajoXaFetchState">Ready</div>
                 </div>
 
                 <div class="hajoXaRow">
-                    <div class="hajoXaLabel">Highlight Correct</div>
-                    <div class="hajoXaToggle on" id="hajoXaHighlight"><span></span></div>
+                    <div class="hajoXaLabel">HTTP Status</div>
+                    <div class="hajoXaValue" id="hajoXaHttp">None</div>
+                </div>
+
+                <div class="hajoXaRow">
+                    <div class="hajoXaLabel">Downloaded</div>
+                    <div class="hajoXaValue" id="hajoXaSize">0 bytes</div>
                 </div>
             </div>
 
             <div class="hajoXaSection">
-                <div class="hajoXaRow">
-                    <div class="hajoXaDot active" id="hajoXaDot"></div>
-                    <div class="hajoXaLabel">Status</div>
-                    <div class="hajoXaValue" id="hajoXaState">Waiting...</div>
-                </div>
-
-                <div class="hajoXaRow">
-                    <div class="hajoXaLabel">Correct Answer</div>
-                    <div class="hajoXaValue hajoXaAnswer" id="hajoXaAnswer">None</div>
-                </div>
+                <div id="hajoXaLog"></div>
             </div>
 
-            <button class="hajoXaButton" id="hajoXaTest">Test Detection</button>
-            <button class="hajoXaButton" id="hajoXaClear">Clear Highlight</button>
+            <button class="hajoXaButton" id="hajoXaFetch">Fetch HajoXa.js</button>
+            <button class="hajoXaButton" id="hajoXaClear">Clear Log</button>
         </div>
 
-        <div class="hajoXaFooter">HajoXa • Clone Tools</div>
+        <div class="hajoXaFooter">HajoXa • Debug Loader</div>
     `;
 
     document.body.appendChild(menu);
@@ -235,18 +203,30 @@
     const body=menu.querySelector("#hajoXaBody");
     const minButton=menu.querySelector("#hajoXaMin");
     const closeButton=menu.querySelector("#hajoXaClose");
-    const autoToggle=menu.querySelector("#hajoXaAuto");
-    const highlightToggle=menu.querySelector("#hajoXaHighlight");
+    const fetchButton=menu.querySelector("#hajoXaFetch");
+    const clearButton=menu.querySelector("#hajoXaClear");
+    const logBox=menu.querySelector("#hajoXaLog");
     const status=menu.querySelector("#hajoXaStatus");
-    const state=menu.querySelector("#hajoXaState");
-    const answer=menu.querySelector("#hajoXaAnswer");
+    const fetchState=menu.querySelector("#hajoXaFetchState");
+    const http=menu.querySelector("#hajoXaHttp");
+    const size=menu.querySelector("#hajoXaSize");
     const dot=menu.querySelector("#hajoXaDot");
 
     let dragging=false;
     let offsetX=0;
     let offsetY=0;
-    let autoAnswer=true;
-    let highlight=true;
+
+    const url="https://raw.githubusercontent.com/givoty-lang/Kahoot-view-answer-by-pofi/main/HajoXa.js?t="+Date.now();
+
+    const log=(text,type="info")=>{
+        const time=new Date().toLocaleTimeString();
+        const line=document.createElement("div");
+        line.textContent=`[${time}] ${text}`;
+        line.style.color=type==="error"?"#ff5555":type==="warn"?"#aaa":"#777";
+        logBox.appendChild(line);
+        logBox.scrollTop=logBox.scrollHeight;
+        console.log("[HajoXa]",text);
+    };
 
     header.addEventListener("mousedown",e=>{
         if(e.target.closest("button"))return;
@@ -268,7 +248,6 @@
     minButton.addEventListener("click",()=>{
         const hidden=body.style.display==="none";
         body.style.display=hidden?"flex":"none";
-        menu.style.width=hidden?"300px":"300px";
         minButton.textContent=hidden?"−":"+";
     });
 
@@ -277,114 +256,68 @@
         style.remove();
     });
 
-    autoToggle.addEventListener("click",()=>{
-        autoAnswer=!autoAnswer;
-        autoToggle.classList.toggle("on",autoAnswer);
-        status.textContent=autoAnswer?"READY":"OFF";
-        state.textContent=autoAnswer?"Waiting...":"Disabled";
-        dot.classList.toggle("active",autoAnswer);
+    clearButton.addEventListener("click",()=>{
+        logBox.innerHTML="";
+        log("Log cleared");
     });
 
-    highlightToggle.addEventListener("click",()=>{
-        highlight=!highlight;
-        highlightToggle.classList.toggle("on",highlight);
+    fetchButton.addEventListener("click",async()=>{
+        status.textContent="FETCHING";
+        fetchState.textContent="Fetching...";
+        http.textContent="...";
+        size.textContent="0 bytes";
+        dot.classList.add("active");
 
-        if(!highlight){
-            document.querySelectorAll(".hajoXaCorrect").forEach(el=>{
-                el.classList.remove("hajoXaCorrect");
-            });
-        }
-    });
+        log("Starting fetch...");
+        log("URL: "+url);
 
-    function findCorrectAnswer(){
-        const selectors=[
-            '[data-correct="true"]',
-            '[data-is-correct="true"]',
-            '[data-answer-correct="true"]',
-            '.correct',
-            '.is-correct'
-        ];
-
-        for(const selector of selectors){
-            const el=document.querySelector(selector);
-            if(el)return el;
-        }
-
-        return null;
-    }
-
-    function processAnswer(){
-        const correct=findCorrectAnswer();
-
-        if(!correct){
-            status.textContent=autoAnswer?"WAITING":"OFF";
-            state.textContent="Waiting...";
-            answer.textContent="None";
-            dot.classList.toggle("active",autoAnswer);
-            return;
-        }
-
-        const target=correct.closest(
-            'button,[role="button"],.answer,.option,[data-answer]'
-        )||correct;
-
-        status.textContent="FOUND";
-        state.textContent="Correct answer found";
-        answer.textContent=(target.innerText||"Correct").trim();
-
-        if(highlight){
-            document.querySelectorAll(".hajoXaCorrect").forEach(el=>{
-                el.classList.remove("hajoXaCorrect");
+        try{
+            const response=await fetch(url,{
+                cache:"no-store"
             });
 
-            target.classList.add("hajoXaCorrect");
+            http.textContent=String(response.status);
+            log("HTTP status: "+response.status);
+            log("Response OK: "+response.ok);
+            log("Content-Type: "+(response.headers.get("content-type")||"unknown"));
 
-            if(!document.getElementById("hajoXaHighlightStyle")){
-                const s=document.createElement("style");
-                s.id="hajoXaHighlightStyle";
-                s.textContent=`
-                    .hajoXaCorrect{
-                        outline:2px solid #fff!important;
-                        box-shadow:0 0 14px #fff4!important;
-                        filter:brightness(1.25)!important;
-                    }
-                `;
-                document.head.appendChild(s);
+            if(!response.ok){
+                throw new Error("HTTP "+response.status);
             }
+
+            const code=await response.text();
+
+            size.textContent=code.length.toLocaleString()+" bytes";
+            fetchState.textContent="Downloaded";
+            status.textContent="SUCCESS";
+
+            log("Downloaded "+code.length.toLocaleString()+" characters");
+            log("First 200 characters:");
+            log(code.slice(0,200).replace(/\s+/g," "));
+
+            try{
+                new Function(code);
+                log("Syntax check: OK");
+            }catch(err){
+                log("Syntax check failed: "+err.message,"error");
+                status.textContent="SYNTAX ERROR";
+                fetchState.textContent="Invalid JS";
+                return;
+            }
+
+            log("Fetch and syntax checks completed.");
+            log("The downloaded code was NOT executed.");
+
+        }catch(err){
+            status.textContent="ERROR";
+            fetchState.textContent="Failed";
+            dot.classList.remove("active");
+            log("Fetch error: "+err.message,"error");
+            console.error("[HajoXa] Fetch error:",err);
         }
-
-        if(autoAnswer){
-            setTimeout(()=>{
-                target.click();
-                status.textContent="ANSWERED";
-                state.textContent="Answer selected";
-            },120);
-        }
-    }
-
-    menu.querySelector("#hajoXaTest").addEventListener("click",()=>{
-        processAnswer();
     });
 
-    menu.querySelector("#hajoXaClear").addEventListener("click",()=>{
-        document.querySelectorAll(".hajoXaCorrect").forEach(el=>{
-            el.classList.remove("hajoXaCorrect");
-        });
-
-        answer.textContent="None";
-        state.textContent="Highlight cleared";
-        status.textContent=autoAnswer?"READY":"OFF";
-    });
-
-    const observer=new MutationObserver(()=>{
-        if(autoAnswer||highlight)processAnswer();
-    });
-
-    observer.observe(document.body,{
-        childList:true,
-        subtree:true,
-        attributes:true
-    });
-
-    processAnswer();
+    log("HajoXa UI loaded");
+    log("Ready to fetch GitHub script");
 })();
+
