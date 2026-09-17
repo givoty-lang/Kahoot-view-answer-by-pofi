@@ -27,7 +27,7 @@
         }
 
         #hajoXaHeader{
-            height:36px;
+            height:38px;
             display:flex;
             align-items:center;
             padding:0 9px;
@@ -56,7 +56,7 @@
             color:#999;
             font-size:14px;
             cursor:pointer;
-            transition:background .12s ease,color .12s ease,transform .12s ease;
+            transition:.12s;
         }
 
         #hajoXaBtns button:hover{
@@ -64,16 +64,12 @@
             color:#fff;
         }
 
-        #hajoXaBtns button:active{
-            transform:scale(.92);
-        }
-
         #hajoXaBody{
-            height:110px;
-            padding:9px;
+            height:175px;
+            padding:10px;
             box-sizing:border-box;
             background:rgb(35,35,35);
-            transition:height .2s ease,opacity .15s ease,padding .2s ease;
+            transition:height .2s ease,opacity .16s ease,padding .2s ease;
         }
 
         #hajoXaMenu.hajoXaMinimized #hajoXaBody{
@@ -84,13 +80,34 @@
             pointer-events:none;
         }
 
+        .hajoXaPanel{
+            height:100%;
+            background:rgb(40,40,40);
+            border-radius:4px;
+            padding:12px;
+            box-sizing:border-box;
+        }
+
+        .hajoXaName{
+            color:#eee;
+            font-weight:600;
+            margin-bottom:5px;
+        }
+
+        .hajoXaDescription{
+            color:#888;
+            line-height:16px;
+            margin-bottom:18px;
+        }
+
         .hajoXaRow{
-            height:34px;
+            height:38px;
             display:flex;
             align-items:center;
-            padding:0 8px;
+            padding:0 9px;
             border-radius:4px;
-            background:rgb(40,40,40);
+            background:rgb(45,45,45);
+            box-sizing:border-box;
         }
 
         .hajoXaLabel{
@@ -98,60 +115,121 @@
             color:#ddd;
         }
 
+        .hajoXaState{
+            color:#777;
+            font-size:10px;
+            margin-right:8px;
+        }
+
         .hajoXaToggle{
-            width:34px;
-            height:18px;
-            position:relative;
+            width:36px;
+            height:19px;
+            background:rgb(58,58,58);
             border-radius:10px;
-            background:rgb(52,52,52);
+            position:relative;
             cursor:pointer;
-            transition:background .15s ease;
+            transition:.16s;
         }
 
         .hajoXaToggle span{
             position:absolute;
             top:3px;
             left:3px;
-            width:12px;
-            height:12px;
+            width:13px;
+            height:13px;
             border-radius:50%;
             background:#888;
-            transition:left .15s ease,background .15s ease;
+            transition:.16s;
         }
 
         .hajoXaToggle.on{
-            background:rgb(70,70,70);
+            background:rgb(75,75,75);
         }
 
         .hajoXaToggle.on span{
-            left:19px;
+            left:20px;
             background:#fff;
         }
 
-        #hajoXaFocusLayer{
+        #hajoXaCreativeLayer{
             position:fixed;
             inset:0;
-            z-index:2147483646;
+            z-index:2147483640;
             pointer-events:none;
-            background:rgba(0,0,0,0);
-            transition:background .25s ease;
+            overflow:hidden;
+            opacity:0;
+            transition:opacity .35s ease;
         }
 
-        body.hajoXaFocus #hajoXaFocusLayer{
-            background:rgba(0,0,0,.16);
+        #hajoXaCreativeLayer.on{
+            opacity:1;
         }
 
-        body.hajoXaFocus > *:not(#hajoXaFocusLayer):not(#hajoXaMenu){
-            filter:brightness(.88) saturate(.88);
-            transition:filter .25s ease;
+        #hajoXaGrid{
+            position:absolute;
+            inset:-30%;
+            background-image:
+                linear-gradient(rgba(255,255,255,.035) 1px,transparent 1px),
+                linear-gradient(90deg,rgba(255,255,255,.035) 1px,transparent 1px);
+            background-size:46px 46px;
+            transform:perspective(500px) rotateX(58deg) scale(1.5);
+            transform-origin:center;
+            animation:hajoXaGridMove 10s linear infinite;
+            opacity:.45;
+        }
+
+        #hajoXaVignette{
+            position:absolute;
+            inset:0;
+            background:radial-gradient(circle at var(--hx,50%) var(--hy,50%),rgba(255,255,255,.11),rgba(0,0,0,.08) 12%,rgba(0,0,0,.42) 70%);
+            transition:background-position .05s linear;
+        }
+
+        #hajoXaScan{
+            position:absolute;
+            inset:0;
+            background:repeating-linear-gradient(
+                to bottom,
+                transparent 0,
+                transparent 5px,
+                rgba(255,255,255,.018) 6px,
+                transparent 7px
+            );
+            opacity:.35;
+        }
+
+        #hajoXaParticles{
+            position:absolute;
+            inset:0;
+        }
+
+        .hajoXaParticle{
+            position:absolute;
+            width:2px;
+            height:2px;
+            border-radius:50%;
+            background:rgba(255,255,255,.45);
+            animation:hajoXaFloat linear infinite;
+        }
+
+        body.hajoXaCreativeActive > *:not(#hajoXaMenu):not(#hajoXaCreativeLayer){
+            transition:transform .25s ease;
+        }
+
+        @keyframes hajoXaGridMove{
+            from{transform:perspective(500px) rotateX(58deg) scale(1.5) translateY(0)}
+            to{transform:perspective(500px) rotateX(58deg) scale(1.5) translateY(46px)}
+        }
+
+        @keyframes hajoXaFloat{
+            from{transform:translate3d(0,20px,0);opacity:0}
+            15%{opacity:.45}
+            85%{opacity:.45}
+            to{transform:translate3d(0,-140px,0);opacity:0}
         }
     `;
 
     document.head.appendChild(style);
-
-    const layer=document.createElement("div");
-    layer.id="hajoXaFocusLayer";
-    document.body.appendChild(layer);
 
     const menu=document.createElement("div");
     menu.id="hajoXaMenu";
@@ -166,16 +244,47 @@
         </div>
 
         <div id="hajoXaBody">
-            <div class="hajoXaRow">
-                <div class="hajoXaLabel">Focus Mode</div>
-                <div class="hajoXaToggle" id="hajoXaToggle">
-                    <span></span>
+            <div class="hajoXaPanel">
+                <div class="hajoXaName">Live Lens</div>
+                <div class="hajoXaDescription">
+                    Turns the current website into an interactive animated scene.
+                </div>
+
+                <div class="hajoXaRow">
+                    <div class="hajoXaLabel">Creative Mode</div>
+                    <div class="hajoXaState" id="hajoXaState">OFF</div>
+                    <div class="hajoXaToggle" id="hajoXaToggle">
+                        <span></span>
+                    </div>
                 </div>
             </div>
         </div>
     `;
 
     document.body.appendChild(menu);
+
+    const creative=document.createElement("div");
+    creative.id="hajoXaCreativeLayer";
+    creative.innerHTML=`
+        <div id="hajoXaGrid"></div>
+        <div id="hajoXaVignette"></div>
+        <div id="hajoXaScan"></div>
+        <div id="hajoXaParticles"></div>
+    `;
+    document.body.appendChild(creative);
+
+    const particles=creative.querySelector("#hajoXaParticles");
+
+    for(let i=0;i<45;i++){
+        const p=document.createElement("div");
+        p.className="hajoXaParticle";
+        p.style.left=Math.random()*100+"%";
+        p.style.top=(70+Math.random()*40)+"%";
+        p.style.animationDuration=(4+Math.random()*7)+"s";
+        p.style.animationDelay=(-Math.random()*8)+"s";
+        p.style.opacity=(.15+Math.random()*.35).toFixed(2);
+        particles.appendChild(p);
+    }
 
     requestAnimationFrame(()=>{
         menu.classList.add("hajoXaShow");
@@ -185,30 +294,54 @@
     const minButton=menu.querySelector("#hajoXaMin");
     const closeButton=menu.querySelector("#hajoXaClose");
     const toggle=menu.querySelector("#hajoXaToggle");
+    const state=menu.querySelector("#hajoXaState");
+    const vignette=creative.querySelector("#hajoXaVignette");
 
     let dragging=false;
     let offsetX=0;
     let offsetY=0;
     let minimized=false;
-    let focusMode=false;
+    let active=false;
 
     header.addEventListener("mousedown",e=>{
         if(e.target.closest("button"))return;
-
         dragging=true;
         offsetX=e.clientX-menu.offsetLeft;
         offsetY=e.clientY-menu.offsetTop;
     });
 
     document.addEventListener("mousemove",e=>{
-        if(!dragging)return;
+        if(dragging){
+            menu.style.left=Math.max(0,e.clientX-offsetX)+"px";
+            menu.style.top=Math.max(0,e.clientY-offsetY)+"px";
+        }
 
-        menu.style.left=Math.max(0,e.clientX-offsetX)+"px";
-        menu.style.top=Math.max(0,e.clientY-offsetY)+"px";
+        if(active){
+            const x=e.clientX/window.innerWidth*100;
+            const y=e.clientY/window.innerHeight*100;
+
+            creative.style.setProperty("--hx",x+"%");
+            creative.style.setProperty("--hy",y+"%");
+
+            vignette.style.setProperty("--hx",x+"%");
+            vignette.style.setProperty("--hy",y+"%");
+        }
     });
 
     document.addEventListener("mouseup",()=>{
         dragging=false;
+    });
+
+    toggle.addEventListener("click",()=>{
+        active=!active;
+        toggle.classList.toggle("on",active);
+        creative.classList.toggle("on",active);
+        document.body.classList.toggle("hajoXaCreativeActive",active);
+        state.textContent=active?"ON":"OFF";
+
+        if(!active){
+            document.body.style.transform="";
+        }
     });
 
     minButton.addEventListener("click",()=>{
@@ -217,19 +350,14 @@
         minButton.textContent=minimized?"+":"−";
     });
 
-    toggle.addEventListener("click",()=>{
-        focusMode=!focusMode;
-        toggle.classList.toggle("on",focusMode);
-        document.body.classList.toggle("hajoXaFocus",focusMode);
-    });
-
     closeButton.addEventListener("click",()=>{
-        document.body.classList.remove("hajoXaFocus");
+        document.body.classList.remove("hajoXaCreativeActive");
+        creative.classList.remove("on");
         menu.classList.remove("hajoXaShow");
 
         setTimeout(()=>{
             menu.remove();
-            layer.remove();
+            creative.remove();
             style.remove();
         },180);
     });
