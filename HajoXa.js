@@ -9,6 +9,7 @@
             top:120px;
             left:120px;
             width:360px;
+            min-height:210px;
             background:rgb(25,25,25);
             border:1px solid rgb(45,45,45);
             border-radius:6px;
@@ -20,7 +21,7 @@
             box-shadow:0 12px 35px rgba(0,0,0,.45);
             opacity:0;
             transform:scale(.96);
-            transition:opacity .18s ease,transform .18s ease;
+            transition:opacity .18s ease,transform .18s ease,min-height .2s ease;
         }
 
         #hajoXaMenu.hajoXaShow{
@@ -28,14 +29,19 @@
             transform:scale(1);
         }
 
+        #hajoXaMenu.hajoXaMinimized{
+            min-height:0;
+        }
+
         #hajoXaHeader{
-            height:38px;
+            height:40px;
             display:flex;
             align-items:center;
             padding:0 10px;
             background:rgb(29,29,29);
-            border-bottom:1px solid rgb(40,40,40);
+            border-bottom:1px solid rgb(42,42,42);
             cursor:move;
+            box-sizing:border-box;
         }
 
         #hajoXaTitle{
@@ -51,15 +57,15 @@
         }
 
         #hajoXaBtns button{
-            width:24px;
-            height:24px;
+            width:25px;
+            height:25px;
             padding:0;
             border:1px solid rgb(48,48,48);
             border-radius:4px;
             background:rgb(32,32,32);
             color:#999;
             font-size:15px;
-            line-height:21px;
+            line-height:22px;
             cursor:pointer;
             transition:background .12s ease,color .12s ease,border-color .12s ease,transform .12s ease;
         }
@@ -73,6 +79,17 @@
         #hajoXaBtns button:active{
             transform:scale(.92);
         }
+
+        #hajoXaBody{
+            height:170px;
+            background:rgb(25,25,25);
+            transition:height .2s ease,opacity .15s ease;
+        }
+
+        #hajoXaMenu.hajoXaMinimized #hajoXaBody{
+            height:0;
+            opacity:0;
+        }
     `;
 
     document.head.appendChild(style);
@@ -83,11 +100,14 @@
     menu.innerHTML=`
         <div id="hajoXaHeader">
             <div id="hajoXaTitle">HajoXa</div>
+
             <div id="hajoXaBtns">
                 <button id="hajoXaMin">−</button>
                 <button id="hajoXaClose">×</button>
             </div>
         </div>
+
+        <div id="hajoXaBody"></div>
     `;
 
     document.body.appendChild(menu);
@@ -103,6 +123,7 @@
     let dragging=false;
     let offsetX=0;
     let offsetY=0;
+    let minimized=false;
 
     header.addEventListener("mousedown",e=>{
         if(e.target.closest("button"))return;
@@ -124,11 +145,14 @@
     });
 
     minButton.addEventListener("click",()=>{
-        menu.style.transform=menu.style.transform==="scale(.96)"?"scale(1)":"scale(.96)";
+        minimized=!minimized;
+        menu.classList.toggle("hajoXaMinimized",minimized);
+        minButton.textContent=minimized?"+":"−";
     });
 
     closeButton.addEventListener("click",()=>{
         menu.classList.remove("hajoXaShow");
+
         setTimeout(()=>{
             menu.remove();
             style.remove();
